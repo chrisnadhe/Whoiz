@@ -86,6 +86,52 @@
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+
+        /* Collapsed Sidebar CSS-based Rules */
+        #sidebar-desktop.collapsed {
+            width: 5rem !important; /* w-20 */
+        }
+        #sidebar-desktop.collapsed #brand-container {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            justify-content: center !important;
+        }
+        #sidebar-desktop.collapsed #brand-container > div {
+            justify-content: center !important;
+            width: auto !important;
+            gap: 0 !important;
+            margin: 0 !important;
+        }
+        #sidebar-desktop.collapsed .sidebar-text {
+            display: none !important;
+            opacity: 0 !important;
+            width: 0 !important;
+            margin: 0 !important;
+        }
+        #sidebar-desktop.collapsed .nav-link {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            justify-content: center !important;
+            width: 3rem !important; /* 48px square highlight */
+            height: 3rem !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+        #sidebar-desktop.collapsed #sidebar-footer {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+        }
+        #sidebar-desktop.collapsed #sidebar-footer button {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            justify-content: center !important;
+            width: 3rem !important;
+            height: 3rem !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
     </style>
     
     <!-- Load custom JavaScript di head agar inisialisasi tema berjalan cepat -->
@@ -95,9 +141,16 @@
 
     <!-- ================= SIDEBAR DESKTOP ================= -->
     <aside id="sidebar-desktop" class="hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 w-64 bg-white dark:bg-[#111827] border-r border-slate-200 dark:border-slate-900 transition-all duration-300 shadow-sm">
+        <!-- Floating Toggle Collapse Button on Border Edge -->
+        <button onclick="toggleSidebarCollapse()" class="absolute -right-3 top-5 z-50 p-1.5 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111827] text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 shadow-md transition-all duration-300 flex items-center justify-center cursor-pointer" title="Toggle Sidebar">
+            <svg id="collapse-icon" class="w-3.5 h-3.5 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+            </svg>
+        </button>
+
         <!-- Sidebar Brand Header -->
-        <div class="h-16 flex items-center justify-between px-4 border-b border-slate-100 dark:border-slate-900/60">
-            <div class="flex items-center space-x-3 overflow-hidden">
+        <div id="brand-container" class="h-16 flex items-center px-4 border-b border-slate-100 dark:border-slate-900/60 transition-all duration-300">
+            <div class="flex items-center space-x-3 overflow-hidden w-full">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20 flex-shrink-0">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -108,16 +161,10 @@
                     <p class="text-[9px] text-slate-400 dark:text-slate-500 font-medium">Domain & IP Inspector</p>
                 </div>
             </div>
-            <!-- Toggle Collapse Button -->
-            <button onclick="toggleSidebarCollapse()" class="p-1.5 rounded-lg border border-slate-150 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 shadow-sm" title="Collapse Sidebar">
-                <svg id="collapse-icon" class="w-4 h-4 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
-                </svg>
-            </button>
         </div>
 
         <!-- Navigation Menu -->
-        <nav class="flex-1 px-3 py-4 space-y-1.5">
+        <nav class="flex-1 px-3 py-4 space-y-1.5 transition-all duration-300" id="nav-container">
             <a hx-get="/inspector"
                hx-target="#main-content"
                hx-push-url="true"
@@ -142,17 +189,17 @@
         </nav>
 
         <!-- Sidebar Footer -->
-        <div class="p-4 border-t border-slate-100 dark:border-slate-900/60 flex flex-col gap-2">
+        <div id="sidebar-footer" class="p-4 border-t border-slate-100 dark:border-slate-900/60 flex flex-col gap-2 transition-all duration-300">
             <button onclick="toggleTheme()" class="flex items-center justify-center gap-2.5 w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#131b2e] text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm">
                 <!-- Sun Icon -->
-                <svg class="w-4 h-4 dark:block hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 dark:block hidden flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"></path>
                 </svg>
                 <!-- Moon Icon -->
-                <svg class="w-4 h-4 dark:hidden block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 dark:hidden block flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
                 </svg>
-                <span class="sidebar-text">Ganti Tema</span>
+                <span class="sidebar-text transition-opacity duration-200">Ganti Tema</span>
             </button>
         </div>
     </aside>
@@ -272,23 +319,15 @@
             const sidebar = document.getElementById('sidebar-desktop');
             const wrapper = document.getElementById('app-layout-wrapper');
             const icon = document.getElementById('collapse-icon');
-            const textLabels = document.querySelectorAll('.sidebar-text');
+
+            sidebar.classList.toggle('collapsed');
 
             if (isSidebarCollapsed) {
-                // Sempitkan sidebar
-                sidebar.classList.replace('w-64', 'w-20');
                 wrapper.classList.replace('lg:pl-64', 'lg:pl-20');
                 icon.classList.add('rotate-180');
-                textLabels.forEach(el => el.classList.add('hidden', 'opacity-0'));
             } else {
-                // Lebarkan sidebar
-                sidebar.classList.replace('w-20', 'w-64');
                 wrapper.classList.replace('lg:pl-20', 'lg:pl-64');
                 icon.classList.remove('rotate-180');
-                textLabels.forEach(el => {
-                    el.classList.remove('hidden');
-                    setTimeout(() => el.classList.remove('opacity-0'), 50);
-                });
             }
         }
 
