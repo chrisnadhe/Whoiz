@@ -1,37 +1,52 @@
-# Whoiz - Domain DNS & WHOIS Inspector
+# Whoiz - Domain DNS, WHOIS & Network Utility Dashboard
 
-Whoiz adalah aplikasi web modern berbasis Python FastAPI, HTMX, dan Tailwind CSS untuk melakukan pengecekan DNS records secara dinamis serta WHOIS lookup untuk domain dan alamat IP.
+Whoiz adalah aplikasi web dasbor utility modern berbasis Python FastAPI, HTMX, dan Tailwind CSS untuk melakukan pengecekan DNS records secara dinamis, WHOIS lookup, pemantauan propagasi DNS global, pencarian ASN, deteksi IP publik, perhitungan CIDR subnetting, pelacakan vendor MAC Address, pembuatan QR Code secara lokal, serta generator sandi acak yang aman.
+
+---
 
 ## 🚀 Fitur Utama
 
-- **Unified Dashboard**: Satu kolom input pintar untuk domain maupun IP Address. Deteksi otomatis berjalan langsung pada backend.
-- **DNS Resolver Selection**: Pengguna dapat memilih untuk melakukan query DNS via public resolver populer (Cloudflare `1.1.1.1`, Google `8.8.8.8`, Quad9 `9.9.9.9`), Default Sistem, atau memasukkan IP DNS kustom sendiri.
-- **Dinamis DNS Record Check**: Pengecekan record DNS (A, AAAA, MX, TXT, NS, CNAME, SOA, CAA, SRV) secara modular dengan antarmuka checkbox yang bersih.
-- **WHOIS Summary & Raw Details**: Hasil WHOIS diparsing menjadi rangkuman kartu informasi penting (Registrar, Created/Expired Date, Nameservers, CIDR, dll.), dilengkapi panel collapsible data teks raw WHOIS.
-- **Copy to Clipboard**: Kemudahan menyalin nilai record DNS maupun teks raw WHOIS dengan satu klik.
-- **Dark & Light Mode**: Desain responsif bertema modern. Tema terang didominasi warna Putih dan Biru Premium. Tema gelap menggunakan Deep Dark Blue.
+Aplikasi ini dibagi menjadi beberapa modul fungsional:
+
+### 🌐 Network Tools
+- **Domain & IP Inspector**: Satu kolom input pintar untuk domain maupun IP Address. Deteksi otomatis berjalan langsung pada backend untuk menampilkan query DNS records secara detail (A, AAAA, MX, TXT, NS, CNAME, SOA, CAA, SRV) dan rangkuman informasi WHOIS/RDAP.
+- **DNS Propagation**: Pemantauan propagasi DNS global secara asinkron (paralel menggunakan `asyncio.gather`) dari berbagai server DNS publik di berbagai belahan dunia (AS, Eropa, Asia, Australia) dilengkapi data latensi.
+- **ASN Lookup**: Melacak nomor ASN langsung, IP, atau domain untuk menampilkan info otorisasi jaringan (registri, nama organisasi, negara, dan tanggal alokasi).
+- **What is My IP?**: Deteksi otomatis IP address publik client, tipe protokol (IPv4/IPv6), reverse DNS PTR record, detail User-Agent browser, serta daftar lengkap HTTP Headers request.
+- **CIDR Calculator**: Kalkulator subnetting IPv4 terperinci yang menghitung range host, IP pertama & terakhir, alamat broadcast, subnet/wildcard mask, dan jumlah usable host dari input CIDR (e.g. `192.168.1.0/24`).
+- **MAC Address Lookup**: Melacak manufaktur/vendor perangkat keras kartu jaringan berdasarkan database OUI (Organizationally Unique Identifier) lokal secara 100% luring (lancar tanpa internet).
+
+### 🛠️ Dev & Security Tools
+- **QR Code Generator**: Generator QR Code berkecepatan tinggi yang berjalan 100% di sisi client menggunakan **QRious.js** canvas rendering. Mendukung penyesuaian ukuran piksel, tingkat koreksi error (EC Level), warna foreground & background, pratinjau langsung (*live preview*), dan pengunduhan gambar QR PNG secara instan.
+- **Secure Password Generator**: Membuat sandi acak aman kriptografis (modul `secrets` Python) dengan panjang kustom (8-64 karakter), opsi jenis karakter (huruf besar, huruf kecil, angka, simbol), visualisasi tingkat kekuatan keamanan, serta salin satu-klik ke clipboard.
+
+### 🎨 Desain & UI Premium
+- **Dark & Light Mode Toggle**: Desain antarmuka modern yang ramah mata. Tema gelap menggunakan Deep Indigo-Gray, sedangkan tema terang beraksen Biru Premium.
+- **Responsive Collapsible Sidebar**: Navigasi terstruktur rapi yang ramah perangkat mobile maupun desktop, dapat dikolaps secara dinamis dengan transisi CSS yang halus.
+- **HTMX SPA Experience**: Seluruh pergantian halaman menu dan submit form memanfaatkan HTMX untuk pertukaran fragmen HTML secara dinamis tanpa melakukan reload halaman penuh (*Single Page Application*).
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Backend**: Python 3.13, FastAPI, Jinja2, `dnspython`, `python-whois`, `ipwhois`.
-- **Frontend**: HTMX (untuk pemuatan asinkron SPA tanpa reload halaman), Tailwind CSS (Play CDN untuk local dev, terkompilasi statis untuk docker production).
-- **Package Manager**: Astral `uv` (bukan pip biasa).
-- **Deployment**: Docker (Multi-stage build).
+- **Backend**: Python >=3.13, FastAPI, Jinja2, `dnspython`, `python-whois`, `ipwhois`.
+- **Testing**: `pytest`, `httpx` (FastAPI TestClient dengan mock network calls).
+- **Frontend**: HTMX, Tailwind CSS, QRious.js.
+- **Package Manager**: Astral `uv` (cepat, andal, dan modern).
+- **Deployment**: Docker (Multi-stage build dengan optimasi Tailwind CSS).
 
 ---
 
-## 💻 Cara Menjalankan Lokal (Windows)
+## 💻 Cara Menjalankan Lokal
 
-Pastikan Anda sudah memiliki [Astral uv](https://github.com/astral-sh/uv) terinstal di mesin Anda.
+Pastikan Anda sudah menginstal [Astral uv](https://github.com/astral-sh/uv) di mesin Anda.
 
 1. **Clone repository & masuk ke direktori**:
    ```bash
    cd Whoiz
    ```
 
-2. **Sinkronkan dependensi & jalankan virtual environment**:
+2. **Sinkronkan dependensi & pasang venv secara otomatis**:
    ```bash
    uv sync
    ```
@@ -42,13 +57,24 @@ Pastikan Anda sudah memiliki [Astral uv](https://github.com/astral-sh/uv) terins
    ```
 
 4. **Akses aplikasi**:
-   Buka browser Anda dan buka [http://127.0.0.1:8000](http://127.0.0.1:8000).
+   Buka browser Anda dan akses [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 ---
 
-## 🐳 Cara Menjalankan dengan Docker (Production Mode)
+## 🧪 Pengujian (Tests Suite)
 
-Dalam mode production, Tailwind CSS akan dikompilasi secara otomatis melalui tahap build Node.js di dalam Dockerfile, sehingga container mandiri dan tidak memerlukan koneksi ke Tailwind CDN.
+Aplikasi ini dilengkapi pengujian terstruktur menggunakan `pytest` dan `FastAPI TestClient`. Seluruh pemanggilan jaringan luar (DNS/WHOIS/Socket) telah di-mock agar pengujian dapat dijalankan secara cepat dan 100% offline.
+
+Untuk menjalankan suite pengujian:
+```bash
+uv run pytest
+```
+
+---
+
+## 🐳 Cara Menjalankan dengan Docker (Mode Produksi)
+
+Dalam mode production, Tailwind CSS akan dikompilasi secara otomatis melalui tahap build Node.js di dalam Dockerfile, sehingga container mandiri dan tidak memerlukan koneksi internet untuk memuat Play CDN.
 
 ### Menggunakan Docker CLI
 1. **Build Docker Image**:
@@ -62,10 +88,9 @@ Dalam mode production, Tailwind CSS akan dikompilasi secara otomatis melalui tah
    ```
 
 ### Menggunakan Docker Compose
-1. **Jalankan Service**:
-   ```bash
-   docker compose up -d
-   ```
+```bash
+docker compose up -d
+```
 
 Aplikasi dapat diakses di [http://localhost:8000](http://localhost:8000).
 
