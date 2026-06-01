@@ -73,7 +73,7 @@
 
             <!-- QR Container Frame -->
             <div class="p-6 bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-850 rounded-2xl flex items-center justify-center min-h-[220px] w-full max-w-[260px] mx-auto shadow-inner relative group">
-                <div id="qrcode" class="bg-white p-2 rounded-lg shadow-sm"></div>
+                <canvas id="qrcode" class="bg-white p-2 rounded-lg shadow-sm max-w-full h-auto hidden"></canvas>
                 <!-- Empty Placeholder Overlay -->
                 <div id="qr-placeholder" class="absolute inset-0 bg-slate-50 dark:bg-slate-900/90 rounded-2xl flex flex-col items-center justify-center p-4 text-center">
                     <svg class="w-10 h-10 text-slate-350 dark:text-slate-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,8 +96,7 @@
     </div>
 </div>
 
-<!-- Load QRCode.js from CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nOMdBm81KfdLn9c1LOoJH54QjnvVqClrrgkfqKjIQVUvQPg3cc2aScTK3O3hgbM41kEv9RDc9EEg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 
 <script>
     // Inisialisasi generator
@@ -149,59 +148,48 @@
             generateQRCode();
         });
 
-        function getECLevel(level) {
-            switch(level) {
-                case 'L': return QRCode.CorrectLevel.L;
-                case 'M': return QRCode.CorrectLevel.M;
-                case 'Q': return QRCode.CorrectLevel.Q;
-                case 'H': return QRCode.CorrectLevel.H;
-                default: return QRCode.CorrectLevel.M;
-            }
-        }
-
         function generateQRCode() {
             const text = textInput.value.trim();
-            qrcodeContainer.innerHTML = '';
             
             if (!text) {
                 placeholder.classList.remove('hidden');
+                qrcodeContainer.classList.add('hidden');
                 downloadBtn.disabled = true;
                 return;
             }
 
             placeholder.classList.add('hidden');
+            qrcodeContainer.classList.remove('hidden');
             downloadBtn.disabled = false;
 
             const size = parseInt(sizeSelect.value) || 256;
             const fgColor = fgColorInput.value;
             const bgColor = bgColorInput.value;
-            const correctLevel = getECLevel(ecSelect.value);
+            const level = ecSelect.value;
 
-            // Karena library QRCode.js merender di frame element secara asinkron,
-            // kita buat instance baru di container yang baru dibersihkan
-            qrGenerator = new QRCode(qrcodeContainer, {
-                text: text,
-                width: size,
-                height: size,
-                colorDark: fgColor,
-                colorLight: bgColor,
-                correctLevel: correctLevel
-            });
+            if (!qrGenerator) {
+                qrGenerator = new QRious({
+                    element: qrcodeContainer,
+                    value: text,
+                    size: size,
+                    foreground: fgColor,
+                    background: bgColor,
+                    level: level
+                });
+            } else {
+                qrGenerator.set({
+                    value: text,
+                    size: size,
+                    foreground: fgColor,
+                    background: bgColor,
+                    level: level
+                });
+            }
         }
 
         // Fitur Download QR Code client-side
         downloadBtn.addEventListener('click', () => {
-            // QRCode.js membuat canvas atau image di dalam container #qrcode
-            const canvas = qrcodeContainer.querySelector('canvas');
-            const img = qrcodeContainer.querySelector('img');
-            
-            let dataUrl = '';
-            if (canvas) {
-                dataUrl = canvas.toDataURL('image/png');
-            } else if (img) {
-                dataUrl = img.src;
-            }
-
+            const dataUrl = qrcodeContainer.toDataURL('image/png');
             if (dataUrl) {
                 const link = document.createElement('a');
                 link.download = 'whoiz-qrcode.png';

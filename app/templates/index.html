@@ -12,6 +12,9 @@
     <!-- HTMX untuk interaksi SPA berkecepatan tinggi -->
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
     
+    <!-- Load QRious globally for client-side QR generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    
     <!-- Tailwind Play CDN untuk development lokal -->
     {% if env == "production" %}
     <link href="/static/css/tailwind.min.css" rel="stylesheet">
