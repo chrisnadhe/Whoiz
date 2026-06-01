@@ -164,14 +164,17 @@
         </div>
 
         <!-- Navigation Menu -->
-        <nav class="flex-1 px-3 py-4 space-y-1.5 transition-all duration-300" id="nav-container">
+        <nav class="flex-1 px-3 py-4 space-y-1.5 transition-all duration-300 overflow-y-auto custom-scrollbar" id="nav-container">
+            <!-- NETWORK TOOLS -->
+            <div class="sidebar-text text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3 pt-2 pb-1.5">Network Tools</div>
+            
             <a hx-get="/inspector"
                hx-target="#main-content"
                hx-push-url="true"
                onclick="setActiveNavLink(this)"
-               class="nav-link flex items-center px-3 py-3 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page != 'propagation' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+               class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'inspector' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
                 <span class="ml-3 sidebar-text transition-opacity duration-200">Domain & IP Inspector</span>
             </a>
@@ -180,11 +183,80 @@
                hx-target="#main-content"
                hx-push-url="true"
                onclick="setActiveNavLink(this)"
-               class="nav-link flex items-center px-3 py-3 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'propagation' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+               class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'propagation' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                 </svg>
-                <span class="ml-3 sidebar-text transition-opacity duration-200">Global DNS Propagation</span>
+                <span class="ml-3 sidebar-text transition-opacity duration-200">DNS Propagation</span>
+            </a>
+
+            <a hx-get="/asn"
+               hx-target="#main-content"
+               hx-push-url="true"
+               onclick="setActiveNavLink(this)"
+               class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'asn' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+                <span class="ml-3 sidebar-text transition-opacity duration-200">ASN Lookup</span>
+            </a>
+
+            <a hx-get="/my-ip"
+               hx-target="#main-content"
+               hx-push-url="true"
+               onclick="setActiveNavLink(this)"
+               class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'my-ip' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="ml-3 sidebar-text transition-opacity duration-200">What is my IP</span>
+            </a>
+
+            <a hx-get="/cidr"
+               hx-target="#main-content"
+               hx-push-url="true"
+               onclick="setActiveNavLink(this)"
+               class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'cidr' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+                <span class="ml-3 sidebar-text transition-opacity duration-200">CIDR Calculator</span>
+            </a>
+
+            <a hx-get="/mac"
+               hx-target="#main-content"
+               hx-push-url="true"
+               onclick="setActiveNavLink(this)"
+               class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'mac' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                </svg>
+                <span class="ml-3 sidebar-text transition-opacity duration-200">MAC Lookup</span>
+            </a>
+
+            <!-- DEV & SECURITY -->
+            <div class="sidebar-text text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3 pt-4 pb-1.5">Dev & Security</div>
+
+            <a hx-get="/qr"
+               hx-target="#main-content"
+               hx-push-url="true"
+               onclick="setActiveNavLink(this)"
+               class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'qr' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h.01M16 20h.01M9 16h.01M9 12h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+                <span class="ml-3 sidebar-text transition-opacity duration-200">QR Generator</span>
+            </a>
+
+            <a hx-get="/password"
+               hx-target="#main-content"
+               hx-push-url="true"
+               onclick="setActiveNavLink(this)"
+               class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'password' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                <span class="ml-3 sidebar-text transition-opacity duration-200">Password Gen</span>
             </a>
         </nav>
 
@@ -227,14 +299,17 @@
             </button>
         </div>
 
-        <nav class="flex-1 px-3 py-4 space-y-1.5">
+        <nav class="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto custom-scrollbar">
+            <!-- NETWORK TOOLS -->
+            <div class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3 pt-2 pb-1.5">Network Tools</div>
+            
             <a hx-get="/inspector"
                hx-target="#main-content"
                hx-push-url="true"
                onclick="setActiveNavLink(this); toggleMobileSidebar(false)"
-               class="nav-link flex items-center px-3 py-3 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page != 'propagation' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+               class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'inspector' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
                 <span class="ml-3">Domain & IP Inspector</span>
             </a>
@@ -243,11 +318,80 @@
                hx-target="#main-content"
                hx-push-url="true"
                onclick="setActiveNavLink(this); toggleMobileSidebar(false)"
-               class="nav-link flex items-center px-3 py-3 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'propagation' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+               class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'propagation' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                 </svg>
-                <span class="ml-3">Global DNS Propagation</span>
+                <span class="ml-3">DNS Propagation</span>
+            </a>
+
+            <a hx-get="/asn"
+               hx-target="#main-content"
+               hx-push-url="true"
+               onclick="setActiveNavLink(this); toggleMobileSidebar(false)"
+               class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'asn' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+                <span class="ml-3">ASN Lookup</span>
+            </a>
+
+            <a hx-get="/my-ip"
+               hx-target="#main-content"
+               hx-push-url="true"
+               onclick="setActiveNavLink(this); toggleMobileSidebar(false)"
+               class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'my-ip' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="ml-3">What is my IP</span>
+            </a>
+
+            <a hx-get="/cidr"
+               hx-target="#main-content"
+               hx-push-url="true"
+               onclick="setActiveNavLink(this); toggleMobileSidebar(false)"
+               class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'cidr' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+                <span class="ml-3">CIDR Calculator</span>
+            </a>
+
+            <a hx-get="/mac"
+               hx-target="#main-content"
+               hx-push-url="true"
+               onclick="setActiveNavLink(this); toggleMobileSidebar(false)"
+               class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'mac' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                </svg>
+                <span class="ml-3">MAC Lookup</span>
+            </a>
+
+            <!-- DEV & SECURITY -->
+            <div class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3 pt-4 pb-1.5">Dev & Security</div>
+
+            <a hx-get="/qr"
+               hx-target="#main-content"
+               hx-push-url="true"
+               onclick="setActiveNavLink(this); toggleMobileSidebar(false)"
+               class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'qr' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h.01M16 20h.01M9 16h.01M9 12h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+                <span class="ml-3">QR Generator</span>
+            </a>
+
+            <a hx-get="/password"
+               hx-target="#main-content"
+               hx-push-url="true"
+               onclick="setActiveNavLink(this); toggleMobileSidebar(false)"
+               class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer {% if active_page == 'password' %}bg-blue-600 text-white shadow-md shadow-blue-500/20{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                <span class="ml-3">Password Gen</span>
             </a>
         </nav>
 
@@ -295,6 +439,18 @@
             <div id="main-content" class="max-w-7xl mx-auto animate-fade-in">
                 {% if active_page == 'propagation' %}
                     {% include 'propagation.html' %}
+                {% elif active_page == 'asn' %}
+                    {% include 'asn_lookup.html' %}
+                {% elif active_page == 'my-ip' %}
+                    {% include 'my_ip.html' %}
+                {% elif active_page == 'cidr' %}
+                    {% include 'cidr_calc.html' %}
+                {% elif active_page == 'mac' %}
+                    {% include 'mac_lookup.html' %}
+                {% elif active_page == 'qr' %}
+                    {% include 'qr_generator.html' %}
+                {% elif active_page == 'password' %}
+                    {% include 'pass_generator.html' %}
                 {% else %}
                     {% include 'inspector.html' %}
                 {% endif %}

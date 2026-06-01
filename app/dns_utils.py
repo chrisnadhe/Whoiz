@@ -241,4 +241,103 @@ async def async_query_dns_record(domain: str, resolver_ip: str, rtype: str) -> d
             "error": str(e)
         }
 
+def query_asn_details(query_input: str) -> dict:
+    """
+    Mengambil detail ASN secara asinkron dari whois.cymru.com.
+    Mendukung Nomor ASN langsung (contoh: 15169), IP Address, atau Domain.
+    """
+    import socket
+    import re
+    import dns.resolver
+    
+    q = query_input.strip()
+    
+    # Periksa apakah input berupa Nomor ASN langsung
+    if re.match(r'^(AS)?\d+$', q, re.IGNORECASE):
+        asn_query = q.upper()
+        if not asn_query.startswith("AS"):
+            asn_query = f"AS{asn_query}"
+        is_direct_asn = True
+    else:
+        is_direct_asn = False
+        # Bersihkan input sebagai IP atau Domain
+        from app.whois_utils import is_ip_address, clean_query
+        cleaned = clean_query(q)
+        if is_ip_address(cleaned):
+            asn_query = cleaned
+        else:
+            # Selesaikan domain ke IP A record terlebih dahulu
+            try:
+                resolver = dns.resolver.Resolver()
+                resolver.timeout = 2.0
+                resolver.lifetime = 2.0
+                answers = resolver.resolve(cleaned, "A")
+                asn_query = answers[0].address
+            except Exception as e:
+                return {
+                    "success": False,
+                    "error": f"Gagal menyelesaikan domain '{cleaned}' ke alamat IP: {str(e)}"
+                }
+                
+    try:
+        # Lakukan koneksi socket ke whois.cymru.com port 43
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(3.5)
+        s.connect(("whois.cymru.com", 43))
+        
+        # Kirim query verbose (-v)
+        s.send(f" -v {asn_query}\r\n".encode())
+        
+        response = b""
+        while True:
+            data = s.recv(4096)
+            if not data:
+                break
+            response += data
+        s.close()
+        
+        lines = response.decode("utf-8", errors="replace").splitlines()
+        
+        # Parsing data verbose Cymru
+        for line in lines:
+            if "|" in line:
+                parts = [p.strip() for p in line.split("|")]
+                if parts[0].upper() in ("AS", "ASN"):
+                    continue
+                if is_direct_asn and len(parts) >= 5:
+                    return {
+                        "success": True,
+                        "type": "asn",
+                        "asn": parts[0],
+                        "country": parts[1],
+                        "registry": parts[2],
+                        "allocated": parts[3],
+                        "name": parts[4],
+                        "ip": "-",
+                        "prefix": "-"
+                    }
+                elif not is_direct_asn and len(parts) >= 7:
+                    return {
+                        "success": True,
+                        "type": "ip_domain",
+                        "asn": parts[0],
+                        "ip": parts[1],
+                        "prefix": parts[2],
+                        "country": parts[3],
+                        "registry": parts[4],
+                        "allocated": parts[5],
+                        "name": parts[6]
+                    }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Error koneksi server WHOIS ASN: {str(e)}"
+        }
+        
+    return {
+        "success": False,
+        "error": f"Tidak ada data ASN yang ditemukan untuk query: '{query_input}'."
+    }
+
+
 

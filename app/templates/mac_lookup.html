@@ -1,0 +1,111 @@
+<!-- MAC Address Lookup Content (Fragment) -->
+<div class="space-y-6 animate-fade-in">
+    <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">MAC OUI Lookup</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Periksa manufaktur / pembuat perangkat berdasarkan MAC Address atau prefix OUI (3 byte pertama).</p>
+        </div>
+    </div>
+
+    <!-- Search Controls -->
+    <div class="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/30 dark:shadow-none">
+        <form hx-post="/mac/lookup" 
+              hx-target="#mac-result" 
+              hx-indicator="#mac-loading"
+              class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div class="md:col-span-3 space-y-2">
+                    <label for="mac-query" class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">MAC Address atau OUI Prefix</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                            </svg>
+                        </div>
+                        <input type="text" 
+                               id="mac-query"
+                               name="query" 
+                               required
+                               placeholder="e.g. 00:1A:2B:3C:4D:5E, F8-FF-C2, atau 00000C" 
+                               class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#182235] text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm">
+                    </div>
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-all shadow-md shadow-blue-500/20 hover:shadow-blue-500/35 flex items-center justify-center space-x-2">
+                    <span>Cari</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="mac-loading" class="htmx-indicator space-y-4 animate-pulse">
+        <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-900 rounded-3xl p-6 sm:p-8 space-y-4">
+            <div class="w-32 h-6 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="h-16 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
+                <div class="h-16 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Container -->
+    <div id="mac-result">
+        {% if results %}
+            <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/10 dark:shadow-none space-y-6">
+                {% if results.success %}
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800/60">
+                    <div class="flex items-center space-x-3">
+                        <span class="px-2.5 py-1 text-xs font-black rounded-lg bg-blue-600 text-white shadow-md shadow-blue-500/10">MAC VENDOR DETECTED</span>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">{{ results.query }}</h3>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- OUI Prefix -->
+                    <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
+                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">OUI Prefix (Matched)</span>
+                        <p class="text-sm font-bold text-slate-800 dark:text-white font-mono select-all">{{ results.prefix }}</p>
+                    </div>
+                    <!-- Vendor Name -->
+                    <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
+                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Vendor / Manufacturer</span>
+                        <p class="text-sm font-bold text-blue-600 dark:text-blue-400 select-all">{{ results.vendor }}</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 rounded-2xl flex items-start space-x-3">
+                    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <div class="text-sm font-medium">
+                        <p class="font-bold">Gagal Melacak MAC Address</p>
+                        <p class="mt-0.5">{{ results.error }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <!-- Standard Placeholder -->
+            <div class="text-center py-16 px-4 bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-900 rounded-3xl shadow-xl shadow-slate-200/10 dark:shadow-none">
+                <div class="w-16 h-16 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Pencarian Vendor MAC Address Siap</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
+                    Masukkan alamat MAC perangkat Anda (atau 6 digit awalnya) untuk mengetahui perusahaan produsen pembuat hardware tersebut secara instan.
+                </p>
+                <div class="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
+                    <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 self-center mr-1">Coba contoh:</span>
+                    <button type="button" onclick="document.getElementById('mac-query').value = 'f8-ff-c2-11-22-33'; htmx.trigger('form', 'submit')" class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 dark:border-blue-900/40">F8:FF:C2 (Apple)</button>
+                    <button type="button" onclick="document.getElementById('mac-query').value = '00-00-0C'; htmx.trigger('form', 'submit')" class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 dark:border-blue-900/40">00:00:0C (Cisco)</button>
+                    <button type="button" onclick="document.getElementById('mac-query').value = '24-0a-c4'; htmx.trigger('form', 'submit')" class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 dark:border-blue-900/40">24:0A:C4 (Espressif)</button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>

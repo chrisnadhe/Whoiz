@@ -1,0 +1,78 @@
+<!-- What is my IP Content (Fragment or Full) -->
+<div class="space-y-6 animate-fade-in">
+    <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">What is My IP?</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Lihat detail alamat IP publik yang saat ini Anda gunakan untuk mengakses internet.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main IP Card (Span 2) -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-3xl p-6 sm:p-8 shadow-xl shadow-blue-500/10 space-y-6 relative overflow-hidden">
+                <div class="absolute right-0 bottom-0 translate-x-10 translate-y-10 opacity-10">
+                    <svg class="w-64 h-64" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                
+                <div class="flex items-center justify-between z-10 relative">
+                    <span class="px-2.5 py-1 text-[10px] font-black rounded-lg bg-white/20 uppercase tracking-wider">Alamat IP Anda</span>
+                    <span class="flex items-center text-xs font-semibold text-blue-200">
+                        <span class="w-2.5 h-2.5 rounded-full bg-green-400 animate-ping mr-2"></span>
+                        Terhubung
+                    </span>
+                </div>
+
+                <div class="py-4 z-10 relative flex items-center justify-between gap-4">
+                    <h3 class="text-3xl sm:text-5xl font-black tracking-tight font-mono select-all break-all" id="client-ip-val">
+                        {{ ip }}
+                    </h3>
+                    <button onclick="copyToClipboard(this, 'client-ip-val')" 
+                            class="p-3.5 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-all shadow-sm flex-shrink-0"
+                            title="Salin IP">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="border-t border-white/15 pt-4 z-10 relative grid grid-cols-2 gap-4 text-xs text-blue-100">
+                    <div>
+                        <p class="text-blue-300 font-semibold uppercase text-[10px] tracking-wider">Protocol</p>
+                        <p class="font-mono font-bold mt-1 text-sm">IPv{{ ip_version }}</p>
+                    </div>
+                    <div>
+                        <p class="text-blue-300 font-semibold uppercase text-[10px] tracking-wider">System Hostname</p>
+                        <p class="font-bold mt-1 text-sm truncate" title="{{ hostname }}">{{ hostname }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Agent -->
+            <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/10 dark:shadow-none space-y-3">
+                <h4 class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">Browser User Agent</h4>
+                <p class="text-sm font-medium text-slate-700 dark:text-slate-300 font-mono bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800/60 p-4 rounded-xl leading-relaxed break-all select-all">
+                    {{ user_agent }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Connection Headers (Col 1) -->
+        <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/10 dark:shadow-none space-y-4">
+            <div class="pb-3 border-b border-slate-100 dark:border-slate-800/60">
+                <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider">HTTP Connection Headers</h3>
+            </div>
+            
+            <div class="space-y-3 overflow-y-auto max-h-[400px] custom-scrollbar pr-2">
+                {% for key, val in headers.items() %}
+                <div class="space-y-1">
+                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">{{ key }}</span>
+                    <p class="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 break-all select-all">{{ val }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

@@ -5,8 +5,28 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from app.dns_utils import query_dns_records, query_reverse_dns, PROPAGATION_SERVERS, async_query_dns_record
+from app.dns_utils import query_dns_records, query_reverse_dns, PROPAGATION_SERVERS, async_query_dns_record, query_asn_details
 from app.whois_utils import clean_query, is_ip_address, get_whois_data
+import json
+import re
+import math
+import secrets
+import string
+import ipaddress
+
+# Load MAC Address database lookup on startup
+MAC_VENDORS = {}
+try:
+    with open("app/data/mac_vendors.json", "r", encoding="utf-8") as f:
+        mac_data = json.load(f)
+        if isinstance(mac_data, list):
+            for item in mac_data:
+                prefix = item.get("macPrefix", "").upper()
+                vendor = item.get("vendorName", "")
+                if prefix:
+                    MAC_VENDORS[prefix] = vendor
+except Exception as e:
+    print(f"Error loading mac_vendors.json on startup: {e}")
 
 app = FastAPI(title="Whoiz")
 
@@ -175,3 +195,221 @@ async def post_propagation_check(
             "avg_latency": avg_latency
         }
     )
+
+# ================= 6 NEW FEATURES ROUTE HANDLERS =================
+
+# 1. ASN LOOKUP
+@app.get("/asn", response_class=HTMLResponse)
+async def get_asn(request: Request):
+    env = os.getenv("APP_ENV", "development")
+    is_htmx = request.headers.get("hx-request") == "true"
+    if is_htmx:
+        return templates.TemplateResponse(request, "asn_lookup.html", {"env": env})
+    return templates.TemplateResponse(request, "index.html", {"env": env, "active_page": "asn"})
+
+@app.post("/asn/lookup", response_class=HTMLResponse)
+async def post_asn_lookup(request: Request, query: str = Form("")):
+    results = query_asn_details(query)
+    return templates.TemplateResponse(request, "asn_lookup.html", {"results": results})
+
+# 2. WHAT IS MY IP
+@app.get("/my-ip", response_class=HTMLResponse)
+async def get_my_ip(request: Request):
+    env = os.getenv("APP_ENV", "development")
+    
+    # Extract Client IP Address
+    x_forwarded_for = request.headers.get("x-forwarded-for")
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(",")[0].strip()
+    else:
+        ip = request.headers.get("x-real-ip", request.client.host)
+        
+    # Determine protocol version
+    ip_version = 6 if ":" in ip else 4
+    
+    # Get PTR Record (reverse DNS hostname)
+    hostname = query_reverse_dns(ip)
+    
+    user_agent = request.headers.get("user-agent", "Unknown Browser / OS")
+    headers_dict = dict(request.headers)
+    
+    is_htmx = request.headers.get("hx-request") == "true"
+    context = {
+        "env": env,
+        "ip": ip,
+        "ip_version": ip_version,
+        "hostname": hostname,
+        "user_agent": user_agent,
+        "headers": headers_dict
+    }
+    
+    if is_htmx:
+        return templates.TemplateResponse(request, "my_ip.html", context)
+    return templates.TemplateResponse(request, "index.html", {"env": env, "active_page": "my-ip", **context})
+
+# 3. CIDR CALCULATOR
+@app.get("/cidr", response_class=HTMLResponse)
+async def get_cidr(request: Request):
+    env = os.getenv("APP_ENV", "development")
+    is_htmx = request.headers.get("hx-request") == "true"
+    if is_htmx:
+        return templates.TemplateResponse(request, "cidr_calc.html", {"env": env})
+    return templates.TemplateResponse(request, "index.html", {"env": env, "active_page": "cidr"})
+
+@app.post("/cidr/calculate", response_class=HTMLResponse)
+async def post_cidr_calculate(request: Request, query: str = Form("")):
+    q = query.strip()
+    try:
+        if "/" not in q:
+            # Assume host route if no mask specified
+            q = f"{q}/32"
+        network = ipaddress.ip_network(q, strict=False)
+        netmask = str(network.netmask)
+        wildcard = str(network.hostmask)
+        network_address = str(network.network_address)
+        broadcast = str(network.broadcast_address)
+        
+        if network.num_addresses > 2:
+            first_usable = str(network[1])
+            last_usable = str(network[-2])
+            usable_hosts = network.num_addresses - 2
+        elif network.num_addresses == 2:
+            first_usable = str(network[0])
+            last_usable = str(network[1])
+            usable_hosts = 2
+        else:
+            first_usable = str(network[0])
+            last_usable = str(network[0])
+            usable_hosts = 1
+            
+        total_hosts = network.num_addresses
+        
+        results = {
+            "success": True,
+            "network": str(network),
+            "netmask": netmask,
+            "wildcard": wildcard,
+            "network_address": network_address,
+            "broadcast": broadcast,
+            "first_usable": first_usable,
+            "last_usable": last_usable,
+            "usable_hosts": usable_hosts,
+            "total_hosts": total_hosts
+        }
+    except Exception as e:
+        results = {
+            "success": False,
+            "error": f"Format CIDR tidak valid. Pastikan format IP/Prefix benar (misal 192.168.1.0/24). Detail: {str(e)}"
+        }
+    return templates.TemplateResponse(request, "cidr_calc.html", {"results": results})
+
+# 4. MAC ADDRESS LOOKUP
+@app.get("/mac", response_class=HTMLResponse)
+async def get_mac(request: Request):
+    env = os.getenv("APP_ENV", "development")
+    is_htmx = request.headers.get("hx-request") == "true"
+    if is_htmx:
+        return templates.TemplateResponse(request, "mac_lookup.html", {"env": env})
+    return templates.TemplateResponse(request, "index.html", {"env": env, "active_page": "mac"})
+
+@app.post("/mac/lookup", response_class=HTMLResponse)
+async def post_mac_lookup(request: Request, query: str = Form("")):
+    q = query.strip()
+    cleaned = re.sub(r'[^0-9A-Fa-f]', '', q).upper()
+    
+    if len(cleaned) < 6:
+        results = {
+            "success": False,
+            "error": "MAC Address / OUI harus memiliki minimal 6 karakter heksadesimal."
+        }
+    else:
+        prefix_raw = cleaned[:6]
+        prefix = f"{prefix_raw[0:2]}:{prefix_raw[2:4]}:{prefix_raw[4:6]}"
+        vendor = MAC_VENDORS.get(prefix)
+        if vendor:
+            results = {
+                "success": True,
+                "query": q,
+                "prefix": prefix,
+                "vendor": vendor
+            }
+        else:
+            results = {
+                "success": False,
+                "error": f"Vendor untuk OUI prefix '{prefix}' tidak ditemukan di database lokal."
+            }
+    return templates.TemplateResponse(request, "mac_lookup.html", {"results": results})
+
+# 5. QR CODE GENERATOR (Client-side renderer page)
+@app.get("/qr", response_class=HTMLResponse)
+async def get_qr(request: Request):
+    env = os.getenv("APP_ENV", "development")
+    is_htmx = request.headers.get("hx-request") == "true"
+    if is_htmx:
+        return templates.TemplateResponse(request, "qr_generator.html", {"env": env})
+    return templates.TemplateResponse(request, "index.html", {"env": env, "active_page": "qr"})
+
+# 6. PASSWORD GENERATOR
+@app.get("/password", response_class=HTMLResponse)
+async def get_password(request: Request):
+    env = os.getenv("APP_ENV", "development")
+    is_htmx = request.headers.get("hx-request") == "true"
+    if is_htmx:
+        return templates.TemplateResponse(request, "pass_generator.html", {"env": env})
+    return templates.TemplateResponse(request, "index.html", {"env": env, "active_page": "password"})
+
+@app.post("/password/generate", response_class=HTMLResponse)
+async def post_password_generate(
+    request: Request,
+    length: int = Form(16),
+    use_upper: str = Form(None),
+    use_lower: str = Form(None),
+    use_nums: str = Form(None),
+    use_syms: str = Form(None)
+):
+    is_upper = use_upper == "true"
+    is_lower = use_lower == "true"
+    is_nums = use_nums == "true"
+    is_syms = use_syms == "true"
+    
+    upper_pool = string.ascii_uppercase
+    lower_pool = string.ascii_lowercase
+    nums_pool = string.digits
+    syms_pool = "!@#$%^&*()_+-=[]{}|;:,.<>?"
+    
+    pool = ""
+    if is_upper: pool += upper_pool
+    if is_lower: pool += lower_pool
+    if is_nums: pool += nums_pool
+    if is_syms: pool += syms_pool
+    
+    if not pool:
+        pool = lower_pool
+        is_lower = True
+        
+    password = "".join(secrets.choice(pool) for _ in range(length))
+    
+    # Calculate entropy
+    pool_size = len(pool)
+    entropy = round(length * math.log2(pool_size), 1)
+    
+    if entropy < 40:
+        strength = "Weak"
+        strength_id = "Lemah"
+    elif entropy < 60:
+        strength = "Medium"
+        strength_id = "Sedang"
+    elif entropy < 80:
+        strength = "Strong"
+        strength_id = "Kuat"
+    else:
+        strength = "Very Strong"
+        strength_id = "Sangat Kuat"
+        
+    results = {
+        "password": password,
+        "entropy": entropy,
+        "strength": strength,
+        "strength_id": strength_id
+    }
+    return templates.TemplateResponse(request, "pass_generator.html", {"results": results})

@@ -1,0 +1,151 @@
+<!-- Password Generator Content (Fragment) -->
+<div class="space-y-6 animate-fade-in">
+    <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Secure Password Generator</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Buat kata sandi acak yang aman secara kriptografi (cryptographically secure) menggunakan modul rahasia server.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Configuration Controls (Left) -->
+        <div class="lg:col-span-2 bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/30 dark:shadow-none">
+            <form hx-post="/password/generate" 
+                  hx-target="#password-result" 
+                  hx-indicator="#password-loading"
+                  id="password-form"
+                  class="space-y-6">
+                
+                <!-- Length Slider -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <label for="pass-length" class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Panjang Karakter</label>
+                        <span id="length-val" class="px-2.5 py-1 text-xs font-black rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-450 border border-blue-100 dark:border-blue-900/30 font-mono">16</span>
+                    </div>
+                    <input type="range" 
+                           id="pass-length"
+                           name="length" 
+                           min="8" 
+                           max="64" 
+                           value="16" 
+                           class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                           oninput="document.getElementById('length-val').innerText = this.value">
+                </div>
+
+                <!-- Checkboxes Options -->
+                <div class="space-y-4">
+                    <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Kriteria Karakter</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Uppercase -->
+                        <label class="flex items-center space-x-3 p-3.5 border border-slate-100 dark:border-slate-850 bg-slate-50 dark:bg-slate-900/30 rounded-xl cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-all select-none">
+                            <input type="checkbox" name="use_upper" checked value="true" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 bg-white dark:bg-slate-800">
+                            <span class="text-sm font-semibold text-slate-700 dark:text-slate-350">Huruf Besar (A-Z)</span>
+                        </label>
+                        <!-- Lowercase -->
+                        <label class="flex items-center space-x-3 p-3.5 border border-slate-100 dark:border-slate-850 bg-slate-50 dark:bg-slate-900/30 rounded-xl cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-all select-none">
+                            <input type="checkbox" name="use_lower" checked value="true" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 bg-white dark:bg-slate-800">
+                            <span class="text-sm font-semibold text-slate-700 dark:text-slate-350">Huruf Kecil (a-z)</span>
+                        </label>
+                        <!-- Numbers -->
+                        <label class="flex items-center space-x-3 p-3.5 border border-slate-100 dark:border-slate-850 bg-slate-50 dark:bg-slate-900/30 rounded-xl cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-all select-none">
+                            <input type="checkbox" name="use_nums" checked value="true" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 bg-white dark:bg-slate-800">
+                            <span class="text-sm font-semibold text-slate-700 dark:text-slate-350">Angka (0-9)</span>
+                        </label>
+                        <!-- Symbols -->
+                        <label class="flex items-center space-x-3 p-3.5 border border-slate-100 dark:border-slate-850 bg-slate-50 dark:bg-slate-900/30 rounded-xl cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-all select-none">
+                            <input type="checkbox" name="use_syms" checked value="true" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 bg-white dark:bg-slate-800">
+                            <span class="text-sm font-semibold text-slate-700 dark:text-slate-350">Simbol Spesial (!@#$...)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-all shadow-md shadow-blue-500/20 hover:shadow-blue-500/35 flex items-center justify-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18.5"></path>
+                    </svg>
+                    <span>Hasilkan Kata Sandi</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Result / Output Card (Right) -->
+        <div class="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/30 dark:shadow-none flex flex-col justify-between min-h-[320px]">
+            <div class="w-full text-center pb-2 border-b border-slate-100 dark:border-slate-800/60">
+                <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider">Hasil Sandi Baru</h3>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="password-loading" class="htmx-indicator py-12 text-center animate-pulse">
+                <div class="h-10 bg-slate-100 dark:bg-slate-900 rounded-xl w-3/4 mx-auto mb-4"></div>
+                <div class="h-4 bg-slate-100 dark:bg-slate-900 rounded-md w-1/2 mx-auto"></div>
+            </div>
+
+            <div id="password-result" class="flex-1 flex flex-col justify-center space-y-6">
+                <!-- Renders dynamically when request is processed -->
+                {% if results %}
+                <div class="space-y-6">
+                    <!-- Password Box -->
+                    <div class="relative p-5 bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-850 rounded-2xl flex items-center justify-between group shadow-inner">
+                        <span id="generated-password" class="text-lg font-bold font-mono tracking-wide text-slate-800 dark:text-white break-all pr-10 select-all">{{ results.password }}</span>
+                        <button onclick="copyToClipboard(this, 'generated-password')" class="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white dark:bg-[#1e293b] hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-150 dark:border-slate-800 rounded-xl text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 shadow-sm transition-all flex items-center space-x-1.5 cursor-pointer" title="Salin Kata Sandi">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Strength Metrics -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-xs font-bold uppercase tracking-wider">
+                            <span class="text-slate-400 dark:text-slate-500">Tingkat Keamanan:</span>
+                            <span class="{% if results.strength == 'Weak' %}text-red-500{% elif results.strength == 'Medium' %}text-amber-500{% elif results.strength == 'Strong' %}text-green-500{% else %}text-emerald-500{% endif %}">
+                                {{ results.strength_id }} ({{ results.entropy }} Bits)
+                            </span>
+                        </div>
+                        
+                        <!-- Color Bar -->
+                        <div class="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+                            {% if results.strength == 'Weak' %}
+                            <div class="h-full bg-red-500 w-1/4"></div>
+                            {% elif results.strength == 'Medium' %}
+                            <div class="h-full bg-amber-500 w-2/4"></div>
+                            {% elif results.strength == 'Strong' %}
+                            <div class="h-full bg-green-500 w-3/4"></div>
+                            {% else %}
+                            <div class="h-full bg-emerald-500 w-full"></div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <svg class="w-10 h-10 text-slate-350 dark:text-slate-650 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    <p class="text-xs text-slate-400 dark:text-slate-500 font-bold">Tekan Hasilkan Kata Sandi untuk memicu generator sandi aman server.</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="w-full pt-4 border-t border-slate-100 dark:border-slate-800/60 text-[10px] text-center text-slate-400 dark:text-slate-500">
+                Sandi acak ini digenerasi menggunakan cryptographically secure pseudorandom generator (secrets) sehingga aman digunakan.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Jalankan trigger form pertama kali agar password langsung terisi saat halaman dibuka
+    (function() {
+        // Hanya trigger jika belum ada results
+        {% if not results %}
+        setTimeout(() => {
+            const form = document.getElementById('password-form');
+            if (form) {
+                htmx.trigger(form, 'submit');
+            }
+        }, 100);
+        {% endif %}
+    })();
+</script>

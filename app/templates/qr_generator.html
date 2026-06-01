@@ -1,0 +1,220 @@
+<!-- QR Code Generator Content (Fragment) -->
+<div class="space-y-6 animate-fade-in">
+    <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">QR Code Generator</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Buat QR Code dinamis secara instan langsung di peramban Anda secara lokal tanpa membebani server.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Configuration Card (Left) -->
+        <div class="lg:col-span-2 bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/30 dark:shadow-none space-y-6">
+            <div class="space-y-2">
+                <label for="qr-text" class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Teks atau URL</label>
+                <textarea id="qr-text" 
+                          rows="4" 
+                          placeholder="Masukkan tautan situs web atau teks di sini untuk membuat QR Code secara real-time..." 
+                          class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#182235] text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- FG Color -->
+                <div class="space-y-2">
+                    <label for="qr-fg-color" class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Warna Utama (Foreground)</label>
+                    <div class="flex space-x-2">
+                        <input type="color" id="qr-fg-color" value="#000000" class="h-10 w-12 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 cursor-pointer">
+                        <input type="text" id="qr-fg-text" value="#000000" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#182235] text-sm text-slate-700 dark:text-slate-350">
+                    </div>
+                </div>
+
+                <!-- BG Color -->
+                <div class="space-y-2">
+                    <label for="qr-bg-color" class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Warna Latar (Background)</label>
+                    <div class="flex space-x-2">
+                        <input type="color" id="qr-bg-color" value="#ffffff" class="h-10 w-12 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 cursor-pointer">
+                        <input type="text" id="qr-bg-text" value="#ffffff" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#182235] text-sm text-slate-700 dark:text-slate-350">
+                    </div>
+                </div>
+
+                <!-- Size -->
+                <div class="space-y-2">
+                    <label for="qr-size" class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ukuran Resolusi (Pixel)</label>
+                    <select id="qr-size" class="w-full bg-slate-50 dark:bg-[#182235] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-700 dark:text-slate-350 focus:outline-none">
+                        <option value="128">128 x 128 px</option>
+                        <option value="256" selected>256 x 256 px</option>
+                        <option value="512">512 x 512 px</option>
+                        <option value="1024">1024 x 1024 px</option>
+                    </select>
+                </div>
+
+                <!-- Correction Level -->
+                <div class="space-y-2">
+                    <label for="qr-correction" class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Koreksi Error (EC Level)</label>
+                    <select id="qr-correction" class="w-full bg-slate-50 dark:bg-[#182235] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-700 dark:text-slate-350 focus:outline-none">
+                        <option value="L">Level L (Terendah - 7%)</option>
+                        <option value="M" selected>Level M (Menengah - 15%)</option>
+                        <option value="Q">Level Q (Tinggi - 25%)</option>
+                        <option value="H">Level H (Maksimal - 30%)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex justify-start space-x-2 pt-2">
+                <button type="button" id="qr-clear-btn" class="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-[#131b2e] border border-slate-200 dark:border-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all">Kosongkan</button>
+            </div>
+        </div>
+
+        <!-- Preview Card (Right) -->
+        <div class="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/30 dark:shadow-none flex flex-col items-center justify-between space-y-6">
+            <div class="w-full text-center pb-2 border-b border-slate-100 dark:border-slate-800/60">
+                <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider">Live Preview</h3>
+            </div>
+
+            <!-- QR Container Frame -->
+            <div class="p-6 bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-850 rounded-2xl flex items-center justify-center min-h-[220px] w-full max-w-[260px] mx-auto shadow-inner relative group">
+                <div id="qrcode" class="bg-white p-2 rounded-lg shadow-sm"></div>
+                <!-- Empty Placeholder Overlay -->
+                <div id="qr-placeholder" class="absolute inset-0 bg-slate-50 dark:bg-slate-900/90 rounded-2xl flex flex-col items-center justify-center p-4 text-center">
+                    <svg class="w-10 h-10 text-slate-350 dark:text-slate-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h.01M16 20h.01M9 16h.01M9 12h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                    <p class="text-xs text-slate-400 dark:text-slate-500 font-bold">Menunggu Input Teks...</p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="w-full pt-4 border-t border-slate-100 dark:border-slate-800/60">
+                <button type="button" id="qr-download-btn" disabled class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 dark:disabled:bg-slate-800/50 disabled:text-slate-400 dark:disabled:text-slate-600 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md shadow-blue-500/10 hover:shadow-blue-500/20 disabled:shadow-none flex items-center justify-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    <span>Unduh Gambar QR</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Load QRCode.js from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nOMdBm81KfdLn9c1LOoJH54QjnvVqClrrgkfqKjIQVUvQPg3cc2aScTK3O3hgbM41kEv9RDc9EEg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+    // Inisialisasi generator
+    (function() {
+        const textInput = document.getElementById('qr-text');
+        const qrcodeContainer = document.getElementById('qrcode');
+        const placeholder = document.getElementById('qr-placeholder');
+        const downloadBtn = document.getElementById('qr-download-btn');
+        const clearBtn = document.getElementById('qr-clear-btn');
+        
+        const fgColorInput = document.getElementById('qr-fg-color');
+        const fgTextInput = document.getElementById('qr-fg-text');
+        const bgColorInput = document.getElementById('qr-bg-color');
+        const bgTextInput = document.getElementById('qr-bg-text');
+        const sizeSelect = document.getElementById('qr-size');
+        const ecSelect = document.getElementById('qr-correction');
+
+        let qrGenerator = null;
+
+        // Sinkronisasi pemilih warna
+        fgColorInput.addEventListener('input', (e) => {
+            fgTextInput.value = e.target.value.toUpperCase();
+            generateQRCode();
+        });
+        fgTextInput.addEventListener('change', (e) => {
+            if (e.target.value.match(/^#[0-9A-F]{6}$/i)) {
+                fgColorInput.value = e.target.value;
+                generateQRCode();
+            }
+        });
+
+        bgColorInput.addEventListener('input', (e) => {
+            bgTextInput.value = e.target.value.toUpperCase();
+            generateQRCode();
+        });
+        bgTextInput.addEventListener('change', (e) => {
+            if (e.target.value.match(/^#[0-9A-F]{6}$/i)) {
+                bgColorInput.value = e.target.value;
+                generateQRCode();
+            }
+        });
+
+        sizeSelect.addEventListener('change', generateQRCode);
+        ecSelect.addEventListener('change', generateQRCode);
+        textInput.addEventListener('input', generateQRCode);
+
+        clearBtn.addEventListener('click', () => {
+            textInput.value = '';
+            generateQRCode();
+        });
+
+        function getECLevel(level) {
+            switch(level) {
+                case 'L': return QRCode.CorrectLevel.L;
+                case 'M': return QRCode.CorrectLevel.M;
+                case 'Q': return QRCode.CorrectLevel.Q;
+                case 'H': return QRCode.CorrectLevel.H;
+                default: return QRCode.CorrectLevel.M;
+            }
+        }
+
+        function generateQRCode() {
+            const text = textInput.value.trim();
+            qrcodeContainer.innerHTML = '';
+            
+            if (!text) {
+                placeholder.classList.remove('hidden');
+                downloadBtn.disabled = true;
+                return;
+            }
+
+            placeholder.classList.add('hidden');
+            downloadBtn.disabled = false;
+
+            const size = parseInt(sizeSelect.value) || 256;
+            const fgColor = fgColorInput.value;
+            const bgColor = bgColorInput.value;
+            const correctLevel = getECLevel(ecSelect.value);
+
+            // Karena library QRCode.js merender di frame element secara asinkron,
+            // kita buat instance baru di container yang baru dibersihkan
+            qrGenerator = new QRCode(qrcodeContainer, {
+                text: text,
+                width: size,
+                height: size,
+                colorDark: fgColor,
+                colorLight: bgColor,
+                correctLevel: correctLevel
+            });
+        }
+
+        // Fitur Download QR Code client-side
+        downloadBtn.addEventListener('click', () => {
+            // QRCode.js membuat canvas atau image di dalam container #qrcode
+            const canvas = qrcodeContainer.querySelector('canvas');
+            const img = qrcodeContainer.querySelector('img');
+            
+            let dataUrl = '';
+            if (canvas) {
+                dataUrl = canvas.toDataURL('image/png');
+            } else if (img) {
+                dataUrl = img.src;
+            }
+
+            if (dataUrl) {
+                const link = document.createElement('a');
+                link.download = 'whoiz-qrcode.png';
+                link.href = dataUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert('Gagal mendownload QR Code. Silakan coba lagi.');
+            }
+        });
+        
+        // Panggil jika ada inisial text
+        generateQRCode();
+    })();
+</script>

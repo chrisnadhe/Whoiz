@@ -1,0 +1,128 @@
+<!-- ASN Lookup Content (Fragment or Full) -->
+<div class="space-y-6 animate-fade-in">
+    <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">ASN Lookup</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Cari detail informasi Autonomous System Number (ASN) berdasarkan nomor AS, alamat IP, atau domain.</p>
+        </div>
+    </div>
+
+    <!-- Search Controls -->
+    <div class="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/30 dark:shadow-none">
+        <form hx-post="/asn/lookup" 
+              hx-target="#asn-result" 
+              hx-indicator="#asn-loading"
+              class="space-y-6">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                </div>
+                <input type="text" 
+                       name="query" 
+                       required
+                       placeholder="Masukkan Nomor ASN (contoh: 15169), IP Address (8.8.8.8), atau Domain (google.com)..." 
+                       class="w-full pl-12 pr-32 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#182235] text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base sm:text-lg">
+                
+                <button type="submit" 
+                        class="absolute right-2.5 top-2.5 bottom-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 rounded-xl transition-all shadow-md shadow-blue-500/20 hover:shadow-blue-500/35 flex items-center space-x-2">
+                    <span>Lacak</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="asn-loading" class="htmx-indicator space-y-4 animate-pulse">
+        <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-900 rounded-3xl p-6 sm:p-8 space-y-4">
+            <div class="w-32 h-6 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="h-16 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
+                <div class="h-16 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
+                <div class="h-16 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
+                <div class="h-16 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Target Result Container -->
+    <div id="asn-result">
+        <!-- Initial / Default State -->
+        {% if results %}
+            <!-- Renders dynamically when POST returns details -->
+            <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/10 dark:shadow-none space-y-6">
+                {% if results.success %}
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800/60">
+                    <div class="flex items-center space-x-3">
+                        <span class="px-2.5 py-1 text-xs font-black rounded-lg bg-blue-600 text-white shadow-md shadow-blue-500/10">ASN INFO</span>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">AS{{ results.asn | replace('AS', '') }}</h3>
+                    </div>
+                    <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">Allocated: {{ results.allocated }}</span>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- AS Name / Org -->
+                    <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl md:col-span-2 space-y-1">
+                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">AS Name / Organization</span>
+                        <p class="text-base font-bold text-slate-800 dark:text-white font-mono select-all">{{ results.name }}</p>
+                    </div>
+                    <!-- CC -->
+                    <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
+                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Country</span>
+                        <p class="text-sm font-bold text-slate-800 dark:text-white">{{ results.country }}</p>
+                    </div>
+                    <!-- Registry -->
+                    <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
+                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Registry</span>
+                        <p class="text-sm font-bold text-slate-800 dark:text-white font-mono uppercase">{{ results.registry }}</p>
+                    </div>
+                    
+                    {% if results.type == 'ip_domain' %}
+                    <!-- Queried IP -->
+                    <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
+                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Resolved IP Address</span>
+                        <p class="text-sm font-bold text-slate-800 dark:text-white font-mono select-all">{{ results.ip }}</p>
+                    </div>
+                    <!-- Prefix -->
+                    <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
+                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">BGP CIDR Prefix</span>
+                        <p class="text-sm font-bold text-slate-800 dark:text-white font-mono select-all">{{ results.prefix }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 rounded-2xl flex items-start space-x-3">
+                    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <div class="text-sm font-medium">
+                        <p class="font-bold">Gagal Mengambil Detail ASN</p>
+                        <p class="mt-0.5">{{ results.error }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <!-- Standard Placeholder -->
+            <div class="text-center py-16 px-4 bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-900 rounded-3xl shadow-xl shadow-slate-200/10 dark:shadow-none">
+                <div class="w-16 h-16 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                </div>
+                <h2 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Pencarian ASN Siap</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
+                    Masukkan nomor AS atau detail domain/IP untuk melihat informasi registrasi kepemilikan jaringan otonom tersebut secara global.
+                </p>
+                <div class="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
+                    <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 self-center mr-1">Coba contoh:</span>
+                    <button type="button" onclick="document.getElementsByName('query')[0].value = '15169'; htmx.trigger('form', 'submit')" class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 dark:border-blue-900/40">AS15169 (Google)</button>
+                    <button type="button" onclick="document.getElementsByName('query')[0].value = 'github.com'; htmx.trigger('form', 'submit')" class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 dark:border-blue-900/40">github.com</button>
+                    <button type="button" onclick="document.getElementsByName('query')[0].value = '1.1.1.1'; htmx.trigger('form', 'submit')" class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 dark:border-blue-900/40">1.1.1.1</button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
