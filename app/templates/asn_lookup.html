@@ -53,57 +53,7 @@
     <div id="asn-result">
         <!-- Initial / Default State -->
         {% if results %}
-            <!-- Renders dynamically when POST returns details -->
-            <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/10 dark:shadow-none space-y-6">
-                {% if results.success %}
-                <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800/60">
-                    <div class="flex items-center space-x-3">
-                        <span class="px-2.5 py-1 text-xs font-black rounded-lg bg-blue-600 text-white shadow-md shadow-blue-500/10">ASN INFO</span>
-                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">AS{{ results.asn | replace('AS', '') }}</h3>
-                    </div>
-                    <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">Allocated: {{ results.allocated }}</span>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- AS Name / Org -->
-                    <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl md:col-span-2 space-y-1">
-                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">AS Name / Organization</span>
-                        <p class="text-base font-bold text-slate-800 dark:text-white font-mono select-all">{{ results.name }}</p>
-                    </div>
-                    <!-- CC -->
-                    <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
-                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Country</span>
-                        <p class="text-sm font-bold text-slate-800 dark:text-white">{{ results.country }}</p>
-                    </div>
-                    <!-- Registry -->
-                    <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
-                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Registry</span>
-                        <p class="text-sm font-bold text-slate-800 dark:text-white font-mono uppercase">{{ results.registry }}</p>
-                    </div>
-                    
-                    {% if results.type == 'ip_domain' %}
-                    <!-- Queried IP -->
-                    <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
-                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Resolved IP Address</span>
-                        <p class="text-sm font-bold text-slate-800 dark:text-white font-mono select-all">{{ results.ip }}</p>
-                    </div>
-                    <!-- Prefix -->
-                    <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
-                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">BGP CIDR Prefix</span>
-                        <p class="text-sm font-bold text-slate-800 dark:text-white font-mono select-all">{{ results.prefix }}</p>
-                    </div>
-                    {% endif %}
-                </div>
-                {% else %}
-                <div class="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 rounded-2xl flex items-start space-x-3">
-                    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    <div class="text-sm font-medium">
-                        <p class="font-bold">Gagal Mengambil Detail ASN</p>
-                        <p class="mt-0.5">{{ results.error }}</p>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
+            {% include 'asn_results.html' %}
         {% else %}
             <!-- Standard Placeholder -->
             <div class="text-center py-16 px-4 bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-900 rounded-3xl shadow-xl shadow-slate-200/10 dark:shadow-none">

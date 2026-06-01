@@ -210,7 +210,7 @@ async def get_asn(request: Request):
 @app.post("/asn/lookup", response_class=HTMLResponse)
 async def post_asn_lookup(request: Request, query: str = Form("")):
     results = query_asn_details(query)
-    return templates.TemplateResponse(request, "asn_lookup.html", {"results": results})
+    return templates.TemplateResponse(request, "asn_results.html", {"results": results})
 
 # 2. WHAT IS MY IP
 @app.get("/my-ip", response_class=HTMLResponse)
@@ -301,7 +301,7 @@ async def post_cidr_calculate(request: Request, query: str = Form("")):
             "success": False,
             "error": f"Format CIDR tidak valid. Pastikan format IP/Prefix benar (misal 192.168.1.0/24). Detail: {str(e)}"
         }
-    return templates.TemplateResponse(request, "cidr_calc.html", {"results": results})
+    return templates.TemplateResponse(request, "cidr_results.html", {"results": results})
 
 # 4. MAC ADDRESS LOOKUP
 @app.get("/mac", response_class=HTMLResponse)
@@ -338,7 +338,7 @@ async def post_mac_lookup(request: Request, query: str = Form("")):
                 "success": False,
                 "error": f"Vendor untuk OUI prefix '{prefix}' tidak ditemukan di database lokal."
             }
-    return templates.TemplateResponse(request, "mac_lookup.html", {"results": results})
+    return templates.TemplateResponse(request, "mac_results.html", {"results": results})
 
 # 5. QR CODE GENERATOR (Client-side renderer page)
 @app.get("/qr", response_class=HTMLResponse)
@@ -412,4 +412,4 @@ async def post_password_generate(
         "strength": strength,
         "strength_id": strength_id
     }
-    return templates.TemplateResponse(request, "pass_generator.html", {"results": results})
+    return templates.TemplateResponse(request, "pass_results.html", {"results": results})
