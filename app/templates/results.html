@@ -1,0 +1,231 @@
+<!-- Outer Container with Entry Animation -->
+<div class="space-y-8 animate-fade-in">
+    <!-- Result Header Overview -->
+    <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-900 rounded-3xl p-6 shadow-lg shadow-slate-200/20 dark:shadow-none flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center space-x-3.5">
+            <span class="px-3 py-1.5 text-xs font-extrabold uppercase tracking-wider rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-500/10">
+                {% if is_ip %}IP Address{% else %}Domain{% endif %}
+            </span>
+            <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight break-all">
+                {{ query }}
+            </h2>
+        </div>
+        <div class="flex flex-wrap gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+            <span class="bg-slate-100 dark:bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-slate-800">
+                Resolver: <strong class="text-blue-600 dark:text-blue-400">{{ resolver_name }}</strong>
+            </span>
+            {% if is_ip and reverse_dns %}
+            <span class="bg-slate-100 dark:bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-slate-800 flex items-center space-x-1 break-all">
+                <span>PTR:</span>
+                <strong class="text-indigo-600 dark:text-indigo-400">{{ reverse_dns }}</strong>
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Results Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- ================= LEFT COLUMN: DNS RECORDS (IF DOMAIN) ================= -->
+        {% if not is_ip %}
+        <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/10 dark:shadow-none space-y-6">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800/60">
+                <h3 class="text-lg font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
+                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                    <span>DNS Records</span>
+                </h3>
+                <span class="text-xs font-bold text-slate-400 dark:text-slate-500">Query Sukses</span>
+            </div>
+
+            <!-- DNS Cards list -->
+            <div class="space-y-4">
+                {% for rtype, rdata in dns_results.items() %}
+                    {% if rdata.error %}
+                        <!-- Error query per-record -->
+                        <div class="p-4 border border-red-100 dark:border-red-950/30 bg-red-50/50 dark:bg-red-950/10 rounded-2xl space-y-1">
+                            <div class="flex justify-between items-center">
+                                <span class="px-2 py-0.5 text-xs font-bold rounded-md bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
+                                    {{ rtype }}
+                                </span>
+                                <span class="text-[10px] font-medium text-red-400">ERROR</span>
+                            </div>
+                            <p class="text-xs text-red-600 dark:text-red-400 font-mono">{{ rdata.error }}</p>
+                        </div>
+                    {% else %}
+                        <!-- Records loop -->
+                        {% if rdata.records %}
+                            <div class="p-4 border border-slate-100 dark:border-slate-800 rounded-2xl hover:border-slate-200 dark:hover:border-slate-700/80 transition-all space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <!-- Dynamic colored badge based on DNS type -->
+                                    <span class="px-2.5 py-0.5 text-xs font-extrabold rounded-md 
+                                        {% if rtype == 'A' %}bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20
+                                        {% elif rtype == 'AAAA' %}bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20
+                                        {% elif rtype == 'MX' %}bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20
+                                        {% elif rtype == 'TXT' %}bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20
+                                        {% elif rtype == 'NS' %}bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20
+                                        {% elif rtype == 'CNAME' %}bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20
+                                        {% else %}bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20{% endif %}">
+                                        {{ rtype }}
+                                    </span>
+                                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">
+                                        TTL: {{ rdata.records[0].ttl }}s
+                                    </span>
+                                </div>
+                                
+                                <div class="space-y-2">
+                                    {% for record in rdata.records %}
+                                    <div class="flex items-center justify-between gap-4 p-2 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-100/50 dark:border-slate-800/40">
+                                        <code class="text-xs sm:text-sm font-mono text-slate-800 dark:text-slate-300 break-all select-all font-semibold" id="copy-{{ rtype }}-{{ loop.index }}">
+                                            {{ record.value }}
+                                        </code>
+                                        
+                                        <button onclick="copyToClipboard(this, 'copy-{{ rtype }}-{{ loop.index }}')" 
+                                                class="flex items-center space-x-1 p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131b2e] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all shadow-sm flex-shrink-0"
+                                                title="Salin Value">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Fallback if IP address selected (no standard DNS list shown) -->
+        {% else %}
+        <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/10 dark:shadow-none flex flex-col items-center justify-center text-center space-y-4">
+            <div class="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500 dark:text-indigo-400 flex items-center justify-center shadow-inner">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-slate-800 dark:text-white">IP Lookup Terdeteksi</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mt-1">
+                    DNS Records hanya ditampilkan untuk nama domain. Untuk alamat IP, detail WHOIS dan data reverse DNS (PTR) disajikan di panel sebelah.
+                </p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ================= RIGHT COLUMN: WHOIS SUMMARY & RAW DATA ================= -->
+        <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/10 dark:shadow-none space-y-6">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800/60">
+                <h3 class="text-lg font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
+                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span>WHOIS Info</span>
+                </h3>
+                <span class="text-xs font-bold {% if whois_results.success %}text-green-500{% else %}text-red-500{% endif %}">
+                    {% if whois_results.success %}Ditemukan{% else %}Gagal/Tidak Terdaftar{% endif %}
+                </span>
+            </div>
+
+            {% if not whois_results.success %}
+                <!-- Error WHOIS -->
+                <div class="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-400 rounded-2xl flex items-start space-x-3">
+                    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    <div class="text-xs sm:text-sm font-medium">
+                        <p class="font-bold">Pemberitahuan</p>
+                        <p class="mt-0.5">{{ whois_results.error }}</p>
+                    </div>
+                </div>
+            {% else %}
+                <!-- WHOIS Summary Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {% if whois_results.type == 'domain' %}
+                        <!-- Registrar -->
+                        <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
+                            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Registrar</span>
+                            <p class="text-sm font-bold text-slate-800 dark:text-white truncate" title="{{ whois_results.summary.registrar }}">{{ whois_results.summary.registrar }}</p>
+                        </div>
+                        <!-- Created Date -->
+                        <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
+                            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tanggal Dibuat</span>
+                            <p class="text-sm font-bold text-slate-800 dark:text-white">{{ whois_results.summary.creation_date }}</p>
+                        </div>
+                        <!-- Expiry Date -->
+                        <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
+                            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tanggal Expired</span>
+                            <p class="text-sm font-bold text-slate-800 dark:text-white">{{ whois_results.summary.expiration_date }}</p>
+                        </div>
+                        <!-- Nameservers -->
+                        <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1 sm:col-span-2">
+                            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Name Servers</span>
+                            <p class="text-xs font-mono font-bold text-slate-800 dark:text-slate-300 break-all select-all">{{ whois_results.summary.nameservers }}</p>
+                        </div>
+                    {% else %}
+                        <!-- Net Name -->
+                        <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
+                            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Network Name</span>
+                            <p class="text-sm font-bold text-slate-800 dark:text-white truncate" title="{{ whois_results.summary.net_name }}">{{ whois_results.summary.net_name }}</p>
+                        </div>
+                        <!-- CIDR Range -->
+                        <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
+                            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">CIDR Block</span>
+                            <p class="text-sm font-mono font-bold text-slate-800 dark:text-white truncate" title="{{ whois_results.summary.cidr }}">{{ whois_results.summary.cidr }}</p>
+                        </div>
+                        <!-- ASN -->
+                        <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
+                            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">ASN</span>
+                            <p class="text-sm font-bold text-slate-800 dark:text-white truncate" title="{{ whois_results.summary.asn_desc }}">{{ whois_results.summary.asn }} ({{ whois_results.summary.asn_desc }})</p>
+                        </div>
+                        <!-- Country -->
+                        <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1">
+                            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Country</span>
+                            <p class="text-sm font-bold text-slate-800 dark:text-white">{{ whois_results.summary.country }}</p>
+                        </div>
+                        <!-- Description -->
+                        <div class="p-4 border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 rounded-2xl space-y-1 sm:col-span-2">
+                            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Description / Organization</span>
+                            <p class="text-xs text-slate-700 dark:text-slate-300 font-medium whitespace-pre-line">{{ whois_results.summary.description }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Collapsible Raw WHOIS Text Area -->
+            {% if whois_results.raw %}
+            <div class="pt-4 border-t border-slate-100 dark:border-slate-800/60">
+                <details class="group border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-900/30">
+                    <summary class="flex items-center justify-between p-4 cursor-pointer font-bold text-xs sm:text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-all select-none">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-slate-400 group-open:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                            <span>Lihat Raw WHOIS Data</span>
+                        </div>
+                        <span class="text-[10px] font-mono border border-slate-200 dark:border-slate-800 px-2 py-0.5 rounded bg-white dark:bg-[#131b2e]">TEXT</span>
+                    </summary>
+                    
+                    <div class="relative border-t border-slate-200 dark:border-slate-800">
+                        <!-- Raw Text Copy Button -->
+                        <button onclick="copyToClipboard(this, 'raw-whois-text')" 
+                                class="absolute right-4 top-4 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 p-2 rounded-xl shadow-md transition-all z-10 flex items-center space-x-1.5"
+                                title="Salin Raw WHOIS">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                            </svg>
+                            <span class="text-xs font-semibold">Salin</span>
+                        </button>
+                        
+                        <!-- Preformatted text -->
+                        <pre class="p-6 bg-slate-950 text-slate-300 font-mono text-xs overflow-x-auto overflow-y-auto max-h-[350px] custom-scrollbar break-all leading-relaxed" id="raw-whois-text">{{ whois_results.raw }}</pre>
+                    </div>
+                </details>
+            </div>
+            {% endif %}
+        </div>
+        
+    </div>
+</div>

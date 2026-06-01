@@ -1,0 +1,11 @@
+{
+  "name": "whoiz-tailwind",
+  "version": "1.0.0",
+  "description": "Tailwind compilation for Whoiz",
+  "scripts": {
+    "build:css": "tailwindcss -i ./input.css -o ./app/static/css/tailwind.min.css --minify"
+  },
+  "dependencies": {
+    "tailwindcss": "^3.4.1"
+  }
+}
