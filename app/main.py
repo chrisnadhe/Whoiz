@@ -1,10 +1,11 @@
 import os
+import asyncio
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from app.dns_utils import query_dns_records, query_reverse_dns
+from app.dns_utils import query_dns_records, query_reverse_dns, PROPAGATION_SERVERS, async_query_dns_record
 from app.whois_utils import clean_query, is_ip_address, get_whois_data
 
 app = FastAPI(title="Whoiz")
@@ -29,9 +30,25 @@ RESOLVERS = {
 }
 
 @app.get("/", response_class=HTMLResponse)
-async def get_index(request: Request):
+async def get_root(request: Request):
     env = os.getenv("APP_ENV", "development")
-    return templates.TemplateResponse(request, "index.html", {"env": env})
+    return templates.TemplateResponse(request, "index.html", {"env": env, "active_page": "inspector"})
+
+@app.get("/inspector", response_class=HTMLResponse)
+async def get_inspector(request: Request):
+    env = os.getenv("APP_ENV", "development")
+    is_htmx = request.headers.get("hx-request") == "true"
+    if is_htmx:
+        return templates.TemplateResponse(request, "inspector.html", {"env": env})
+    return templates.TemplateResponse(request, "index.html", {"env": env, "active_page": "inspector"})
+
+@app.get("/propagation", response_class=HTMLResponse)
+async def get_propagation(request: Request):
+    env = os.getenv("APP_ENV", "development")
+    is_htmx = request.headers.get("hx-request") == "true"
+    if is_htmx:
+        return templates.TemplateResponse(request, "propagation.html", {"env": env})
+    return templates.TemplateResponse(request, "index.html", {"env": env, "active_page": "propagation"})
 
 @app.post("/lookup", response_class=HTMLResponse)
 async def post_lookup(
@@ -90,5 +107,71 @@ async def post_lookup(
             "whois_results": whois_results,
             "reverse_dns": reverse_dns,
             "resolver_name": resolver_display
+        }
+    )
+
+@app.post("/propagation/check", response_class=HTMLResponse)
+async def post_propagation_check(
+    request: Request,
+    domain: str = Form(""),
+    record_type: str = Form("A")
+):
+    cleaned = clean_query(domain)
+    if not cleaned:
+        error_html = """
+        <div class="p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 rounded-xl flex items-center space-x-2">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <span>Silakan masukkan nama domain yang valid.</span>
+        </div>
+        """
+        return HTMLResponse(content=error_html, status_code=200)
+
+    # Jalankan query secara paralel menggunakan asyncio.gather
+    tasks = []
+    server_keys = list(PROPAGATION_SERVERS.keys())
+    for key in server_keys:
+        server_info = PROPAGATION_SERVERS[key]
+        tasks.append(async_query_dns_record(cleaned, server_info["ip"], record_type))
+        
+    results_list = await asyncio.gather(*tasks)
+    
+    # Susun respon gabungan
+    results = {}
+    success_count = 0
+    total_latency = 0
+    resolved_count = 0
+    
+    for i, key in enumerate(server_keys):
+        res = results_list[i]
+        server_info = PROPAGATION_SERVERS[key]
+        results[key] = {
+            "name": server_info["name"],
+            "ip": server_info["ip"],
+            "location": server_info["location"],
+            "flag": server_info["flag"],
+            "success": res["success"],
+            "values": res["values"],
+            "ttl": res["ttl"],
+            "latency": res["latency"],
+            "error": res["error"]
+        }
+        # Hitung statistik jika resolusi DNS sukses dan ada nilainya
+        if res["success"] and res["error"] != "TIDAK ADA RECORD":
+            success_count += 1
+            total_latency += res["latency"]
+            resolved_count += 1
+            
+    avg_latency = round(total_latency / resolved_count, 1) if resolved_count > 0 else 0
+    
+    return templates.TemplateResponse(
+        request,
+        "propagation_results.html",
+        {
+            "domain": cleaned,
+            "rtype": record_type,
+            "results": results,
+            "success_count": success_count,
+            "total_count": len(server_keys),
+            "avg_latency": avg_latency
         }
     )

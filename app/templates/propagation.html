@@ -1,0 +1,107 @@
+<!-- DNS Propagation Main Page Content (Fragment) -->
+<div class="space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Global DNS Propagation</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Cek penyebaran DNS record Anda di berbagai server DNS penjuru dunia secara *real-time*.</p>
+        </div>
+    </div>
+
+    <!-- Propagation Search Controls -->
+    <div class="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/30 dark:shadow-none">
+        <form hx-post="/propagation/check" 
+              hx-target="#propagation-result" 
+              hx-indicator="#propagation-loading"
+              class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <!-- Domain Input (Span 2) -->
+                <div class="md:col-span-2 space-y-2">
+                    <label for="prop-query" class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nama Domain</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                            </svg>
+                        </div>
+                        <input type="text" 
+                               id="prop-query"
+                               name="domain" 
+                               required
+                               placeholder="e.g. google.com" 
+                               class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#182235] text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm">
+                    </div>
+                </div>
+
+                <!-- Record Type Dropdown -->
+                <div class="space-y-2">
+                    <label for="prop-type" class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tipe Record</label>
+                    <select id="prop-type" 
+                            name="record_type"
+                            class="w-full bg-slate-50 dark:bg-[#182235] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        {% for rtype in ["A", "AAAA", "MX", "TXT", "NS", "CNAME", "SOA", "CAA", "SRV"] %}
+                        <option value="{{ rtype }}" {% if rtype == "A" %}selected{% endif %}>{{ rtype }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Check Button -->
+                <button type="submit" 
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-all shadow-md shadow-blue-500/20 hover:shadow-blue-500/35 flex items-center justify-center space-x-2">
+                    <span>Lacak</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Propagation Result Loading Indicator -->
+    <div id="propagation-loading" class="htmx-indicator space-y-6 animate-pulse">
+        <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-900 rounded-3xl p-6 flex items-center justify-between">
+            <div class="w-48 h-5 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+            <div class="w-32 h-6 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+        </div>
+        <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-900 rounded-3xl p-6 overflow-hidden">
+            <div class="space-y-4">
+                <div class="grid grid-cols-5 gap-4 pb-4 border-b border-slate-100 dark:border-slate-800/60">
+                    <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded-md col-span-1"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded-md col-span-1"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded-md col-span-1"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded-md col-span-1"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded-md col-span-1"></div>
+                </div>
+                {% for i in range(8) %}
+                <div class="grid grid-cols-5 gap-4 py-2 items-center">
+                    <div class="h-5 bg-slate-200 dark:bg-slate-800 rounded-md col-span-1"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded-md col-span-1"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded-md col-span-1"></div>
+                    <div class="h-5 bg-slate-200 dark:bg-slate-800 rounded-md col-span-1"></div>
+                    <div class="h-6 bg-slate-200 dark:bg-slate-800 rounded-md col-span-1"></div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Placeholder -->
+    <div id="propagation-result">
+        <div class="text-center py-16 px-4 bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-900 rounded-3xl shadow-xl shadow-slate-200/10 dark:shadow-none">
+            <div class="w-16 h-16 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                </svg>
+            </div>
+            <h2 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Mulai Lacak Propagasi Global</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
+                Masukkan domain dan pilih tipe record untuk melihat apakah perubahan DNS Anda sudah tersebar ke server DNS di berbagai belahan dunia.
+            </p>
+            <div class="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
+                <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 self-center mr-1">Coba contoh:</span>
+                <button type="button" onclick="document.getElementById('prop-query').value = 'google.com'; document.getElementById('prop-type').value = 'A'; htmx.trigger('form', 'submit')" class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 dark:border-blue-900/40">google.com [A]</button>
+                <button type="button" onclick="document.getElementById('prop-query').value = 'cloudflare.com'; document.getElementById('prop-type').value = 'NS'; htmx.trigger('form', 'submit')" class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 dark:border-blue-900/40">cloudflare.com [NS]</button>
+                <button type="button" onclick="document.getElementById('prop-query').value = 'github.com'; document.getElementById('prop-type').value = 'CNAME'; htmx.trigger('form', 'submit')" class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 dark:border-blue-900/40">github.com [CNAME]</button>
+            </div>
+        </div>
+    </div>
+</div>

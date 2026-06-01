@@ -1,0 +1,159 @@
+<!-- Inspector Main Page Content (Fragment) -->
+<div class="space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Domain & IP Inspector</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Periksa DNS record dan data WHOIS secara real-time.</p>
+        </div>
+    </div>
+
+    <!-- Search Controls -->
+    <div class="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/30 dark:shadow-none">
+        <form hx-post="/lookup" 
+              hx-target="#result" 
+              hx-indicator="#loading"
+              class="space-y-6">
+            <!-- Search Input Group -->
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                    </svg>
+                </div>
+                <input type="text" 
+                       name="query" 
+                       required
+                       placeholder="Masukkan nama domain (google.com) atau IP Address (8.8.8.8)..." 
+                       class="w-full pl-12 pr-32 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#182235] text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base sm:text-lg">
+                
+                <button type="submit" 
+                        class="absolute right-2.5 top-2.5 bottom-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 rounded-xl transition-all shadow-md shadow-blue-500/20 hover:shadow-blue-500/35 flex items-center space-x-2">
+                    <span>Periksa</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Parameters Section -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800/60">
+                <!-- Column 1: Resolver Settings -->
+                <div class="space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-300 flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        <span>DNS Resolver</span>
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <select name="resolver" 
+                                onchange="document.getElementById('custom-resolver-container').classList.toggle('hidden', this.value !== 'custom')"
+                                class="w-full bg-slate-50 dark:bg-[#182235] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="system">Default Sistem Server</option>
+                            <option value="cloudflare">Cloudflare DNS (1.1.1.1)</option>
+                            <option value="google">Google Public DNS (8.8.8.8)</option>
+                            <option value="quad9">Quad9 DNS (9.9.9.9)</option>
+                            <option value="custom">Custom Resolver IP...</option>
+                        </select>
+                        
+                        <!-- Custom IP Input (hidden by default) -->
+                        <div id="custom-resolver-container" class="hidden">
+                            <input type="text" 
+                                   name="custom_resolver_ip" 
+                                   placeholder="Contoh: 8.8.4.4 atau 208.67.222.222" 
+                                   class="w-full bg-slate-50 dark:bg-[#182235] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column 2 & 3: DNS Record Checkboxes -->
+                <div class="md:col-span-2 space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-300 flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Pilih DNS Record (Khusus Domain Lookup)</span>
+                    </h3>
+                    
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                        {% for rtype in ["A", "AAAA", "MX", "TXT", "NS", "CNAME", "SOA", "CAA", "SRV"] %}
+                        <label class="flex items-center space-x-2.5 px-3 py-2 rounded-xl border border-slate-200/70 dark:border-slate-800 bg-slate-50 dark:bg-[#182235] cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all select-none">
+                            <input type="checkbox" 
+                                   name="record_types" 
+                                   value="{{ rtype }}"
+                                   {% if rtype in ["A", "AAAA", "MX", "TXT", "NS", "CNAME"] %}checked{% endif %}
+                                   class="rounded text-blue-600 dark:bg-slate-900 border-slate-300 dark:border-slate-700 focus:ring-blue-500 focus:ring-offset-slate-900">
+                            <span class="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">{{ rtype }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Result Loading Indicator (Skeleton Screen) -->
+    <div id="loading" class="htmx-indicator space-y-8 animate-pulse">
+        <!-- Loading Indicator Top -->
+        <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-900 rounded-3xl p-6 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-6 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+                <div class="w-40 h-5 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+            </div>
+            <div class="w-24 h-4 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+        </div>
+
+        <!-- Skeleton Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Col 1: DNS Records Loading -->
+            <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-900 rounded-3xl p-6 sm:p-8 space-y-6">
+                <div class="w-32 h-6 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+                <div class="space-y-4">
+                    {% for i in range(4) %}
+                    <div class="p-4 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-3">
+                        <div class="flex justify-between">
+                            <div class="w-12 h-5 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+                            <div class="w-16 h-4 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+                        </div>
+                        <div class="w-full h-8 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Col 2: WHOIS Loading -->
+            <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-900 rounded-3xl p-6 sm:p-8 space-y-6">
+                <div class="w-32 h-6 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    {% for i in range(4) %}
+                    <div class="p-4 border border-slate-100 dark:border-slate-800 rounded-2xl space-y-2">
+                        <div class="w-20 h-4 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+                        <div class="w-32 h-5 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="w-full h-48 bg-slate-200 dark:bg-slate-800 rounded-2xl"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Container -->
+    <div id="result">
+        <!-- Initial State Info -->
+        <div class="text-center py-16 px-4 bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-900 rounded-3xl shadow-xl shadow-slate-200/10 dark:shadow-none">
+            <div class="w-16 h-16 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h2 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Siap Melakukan Pengecekan</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
+                Masukkan nama domain atau alamat IP di kolom atas untuk memeriksa DNS record di public DNS dan detail WHOIS secara bersamaan.
+            </p>
+            <div class="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
+                <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 self-center mr-1">Coba contoh:</span>
+                <button type="button" onclick="document.getElementsByName('query')[0].value = 'google.com'; htmx.trigger('form', 'submit')" class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 dark:border-blue-900/40">google.com</button>
+                <button type="button" onclick="document.getElementsByName('query')[0].value = 'github.com'; htmx.trigger('form', 'submit')" class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 dark:border-blue-900/40">github.com</button>
+                <button type="button" onclick="document.getElementsByName('query')[0].value = '8.8.8.8'; htmx.trigger('form', 'submit')" class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 dark:border-blue-900/40">8.8.8.8</button>
+                <button type="button" onclick="document.getElementsByName('query')[0].value = '1.1.1.1'; htmx.trigger('form', 'submit')" class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 dark:border-blue-900/40">1.1.1.1</button>
+            </div>
+        </div>
+    </div>
+</div>
